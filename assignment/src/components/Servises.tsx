@@ -44,17 +44,19 @@ const HotDealsSection: React.FC = () => {
             <h2 className="text-lg font-bold text-gray-900 border-b-2 border-blue-500 pb-1">
               FEATURED PRODUCTS
             </h2>
-            <button className="text-sm text-blue-600 font-semibold hover:underline">
+            <span className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer">
               VIEW ALL
-            </button>
+            </span>
           </div>
 
           {/* Carousel */}
           <div className="relative">
             {/* Left Arrow */}
-            <button className="absolute -left-4 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300">
-              <SlArrowLeft className="text-gray-700" />
-            </button>
+            <SlArrowLeft
+              className="absolute -left-4 top-1/2 transform -translate-y-1/2 
+              bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300 
+              cursor-pointer text-gray-700"
+            />
 
             {/* Product grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-6">
@@ -121,9 +123,11 @@ const HotDealsSection: React.FC = () => {
             </div>
 
             {/* Right Arrow */}
-            <button className="absolute -right-4 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300">
-              <SlArrowRight className="text-gray-700" />
-            </button>
+            <SlArrowRight
+              className="absolute -right-4 top-1/2 transform -translate-y-1/2 
+              bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300 
+              cursor-pointer text-gray-700"
+            />
           </div>
         </div>
       </div>

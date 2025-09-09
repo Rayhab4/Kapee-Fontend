@@ -91,13 +91,34 @@ const Footer: React.FC = () => {
       {/* Footer Bottom */}
       <div className="border-t border-gray-700 mt-10 py-4 text-center text-sm">
         Kapee © 2025 by PressLayouts. All Rights Reserved.
-        <div className="flex justify-center flex-wrap gap-2 mt-2">
-          <img src="/visa.png" alt="Visa" className="h-6" />
-          <img src="/paypal.png" alt="PayPal" className="h-6" />
-          <img src="/discover.png" alt="Discover" className="h-6" />
-          <img src="/maestro.png" alt="Maestro" className="h-6" />
-          <img src="/mastercard.png" alt="MasterCard" className="h-6" />
-        </div>
+      <div className="flex justify-center flex-wrap gap-2 mt-2">
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" 
+    alt="Visa" 
+    className="h-6" 
+  />
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+    alt="PayPal" 
+    className="h-6" 
+  />
+  <img 
+    src="https://i.pinimg.com/736x/7d/70/2a/7d702aa95f90e7042be4bc93fe41d4d0.jpg" 
+    alt="Discover" 
+    className="h-6" 
+  />
+  <img 
+    src="https://i.pinimg.com/1200x/3c/83/9c/3c839c72dac5bfe0dca769abb1ae6020.jpg" 
+    alt="Maestro" 
+    className="h-6" 
+  />
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+    alt="MasterCard" 
+    className="h-6" 
+  />
+</div>
+
       </div>
     </footer>
   );
