@@ -1,4 +1,6 @@
-const About = () => {
+import React from "react";
+
+const About: React.FC = () => {
   return (
     <div className="p-10 bg-gray-50 min-h-screen">
       <div className="max-w-5xl mx-auto text-center">
@@ -12,19 +14,19 @@ const About = () => {
         </p>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition">
+          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition-all">
             <h2 className="text-2xl font-bold text-yellow-500 mb-4">Our Mission</h2>
             <p className="text-gray-600">
               Bringing quality products closer to you with unmatched customer care and trust.
             </p>
           </div>
-          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition">
+          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition-all">
             <h2 className="text-2xl font-bold text-yellow-500 mb-4">Our Vision</h2>
             <p className="text-gray-600">
               To become the leading eCommerce brand known for innovation, quality, and value.
             </p>
           </div>
-          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition">
+          <div className="bg-white shadow-lg p-6 rounded-xl hover:scale-105 transform transition-all">
             <h2 className="text-2xl font-bold text-yellow-500 mb-4">Our Values</h2>
             <p className="text-gray-600">
               Honesty, commitment, and excellence in every product and service we offer.

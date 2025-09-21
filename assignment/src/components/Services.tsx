@@ -15,10 +15,10 @@ const HotDealsSection: React.FC = () => {
             <img
               src="https://i.pinimg.com/736x/2e/35/55/2e3555ee5674ccef3be4e734bb9a5d24.jpg"
               alt="Apple Watch Series 5"
-              className="w-50 h-60 object-contain mb-4"
+              className="w-[200px] h-[240px] object-contain mb-4"
             />
             <p className="text-sm text-gray-500">ELECTRONICS</p>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 text-center">
               Apple Watch Series 5
             </h3>
             <p className="mt-1 text-gray-700">
@@ -55,7 +55,7 @@ const HotDealsSection: React.FC = () => {
             <SlArrowLeft
               className="absolute -left-4 top-1/2 transform -translate-y-1/2 
               bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300 
-              cursor-pointer text-gray-700"
+              cursor-pointer text-gray-700 z-10"
             />
 
             {/* Product grid */}
@@ -104,20 +104,18 @@ const HotDealsSection: React.FC = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="border p-3 rounded shadow-sm hover:shadow-md transition bg-white"
+                  className="border p-3 rounded shadow-sm hover:shadow-md transition bg-white flex flex-col items-center"
                 >
                   <img
                     src={item.img}
                     alt={item.name}
-                    className="w-24 h-24 object-contain mx-auto mb-3"
+                    className="w-24 h-24 object-contain mb-3"
                   />
                   <p className="text-xs text-gray-500">ELECTRONICS</p>
-                  <h3 className="text-sm font-semibold text-gray-800 truncate">
+                  <h3 className="text-sm font-semibold text-gray-800 truncate text-center">
                     {item.name}
                   </h3>
-                  <p className="text-sm font-bold text-gray-900">
-                    {item.price}
-                  </p>
+                  <p className="text-sm font-bold text-gray-900">{item.price}</p>
                 </div>
               ))}
             </div>
@@ -126,7 +124,7 @@ const HotDealsSection: React.FC = () => {
             <SlArrowRight
               className="absolute -right-4 top-1/2 transform -translate-y-1/2 
               bg-gray-200 p-2 rounded-full shadow hover:bg-gray-300 
-              cursor-pointer text-gray-700"
+              cursor-pointer text-gray-700 z-10"
             />
           </div>
         </div>

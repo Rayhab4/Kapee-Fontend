@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
-import PromoSection from "./Section2";
-import HotDealsSection from "./Servises";
-import BestSellingProducts from "./BestSellProduct";
 import ProductShowcase from "./ProductShowCase";
+import Section2 from "./Section2";
+import Services from "./Services";
+import BestSellingProducts from "./BestSellProduct";
 
-const categories = [
+// -------------------- Types --------------------
+interface HeroBlock {
+  title: string;
+  subtitle: string;
+  discount: string;
+  img: string;
+}
+
+// -------------------- Data --------------------
+const categories: string[] = [
   "Men’s Clothing",
   "Women’s Clothing",
   "Accessories",
@@ -23,124 +32,136 @@ const categories = [
   "Suits",
 ];
 
-const heroBlocks = [
+const heroBlocks: HeroBlock[] = [
   {
     title: "WIRELESS CHARGING STAND",
     subtitle: "BEST SMARTPHONE",
     discount: "Up To 70% Off",
-    img: "https://i.pinimg.com/1200x/e7/b7/72/e7b772331f4704a1bac2f12d78f53167.jpg",
+    img: "/image1.jpg",
   },
   {
     title: "PERSONALIZED HEADPHONES",
     subtitle: "BEATS EP ON-EAR",
     discount: "Min. 40-80% Off",
-    img: "https://i.pinimg.com/736x/97/6e/94/976e94818e08c43b618ea546edec4995.jpg",
+    img: "/image2.jpg",
   },
 ];
 
+// -------------------- Component --------------------
 const WelcomePage: React.FC = () => {
-  const [slideIn, setSlideIn] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
- 
+  const [slideIn, setSlideIn] = useState<boolean>(false);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [imgEffect, setImgEffect] = useState<boolean>(false);
 
   useEffect(() => {
     setSlideIn(true);
   }, []);
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % heroBlocks.length);
-  };
+  useEffect(() => {
+    setImgEffect(false);
+    const timeout = setTimeout(() => setImgEffect(true), 50);
+    return () => clearTimeout(timeout);
+  }, [currentIndex]);
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? heroBlocks.length - 1 : prev - 1
-    );
+  const handleNext = (): void =>
+    setCurrentIndex((prev) => (prev + 1) % heroBlocks.length);
+
+  const handlePrev = (): void =>
+    setCurrentIndex((prev) => (prev === 0 ? heroBlocks.length - 1 : prev - 1));
+
+  // ⬇️ Placeholder Buy Now handler
+  const handleBuyNow = (): void => {
+    // Intentionally does nothing for now
+    console.log("BUY NOW clicked:", heroBlocks[currentIndex].title);
   };
 
   return (
-    <div>
-      {/* Toggle "button" → span */}
-
-      <div className="flex flex-1 min-h-screen mx-6">
-        {/* Sidebar */}
-        {(
-          <aside className="w-1/5 bg-white border-r px-6 py-6 overflow-y-auto transition-all duration-500">
-            <ul className="space-y-3 text-gray-700">
-              {categories.map((item, index) => (
-                <li
+    <div className="bg-gray-50">
+      {/* ----- Hero Section ----- */}
+      <div className="flex flex-col md:flex-row max-w-7xl mx-auto py-12 px-6 gap-6">
+        {/* Sidebar with Categories */}
+        <aside className="w-full md:w-1/4 bg-white border border-gray-200 rounded-lg p-6 overflow-auto">
+          <h3 className="font-bold text-xl mb-4">Categories</h3>
+          <table className="table-auto w-full border-collapse">
+            <tbody>
+              {categories.map((category, index) => (
+                <tr
                   key={index}
-                  className={`flex justify-between cursor-pointer hover:text-yellow-500 transform transition-all duration-500 ease-out ${
-                    slideIn
-                      ? "translate-x-0 opacity-100"
-                      : "-translate-x-10 opacity-0"
-                  }`}
-                  style={{ transitionDelay: `${index * 80}ms` }}
+                  className="hover:bg-yellow-50 cursor-pointer transition-colors duration-300"
                 >
-                  {item} <span>›</span>
-                </li>
+                  <td className="border-b border-gray-200 py-2 px-4 text-gray-700 font-medium">
+                    {category}
+                  </td>
+                </tr>
               ))}
-            </ul>
-          </aside>
-        )}
+            </tbody>
+          </table>
+        </aside>
 
-        {/* Hero Section */}
-        <section className="flex-1 flex items-center justify-center bg-gray-30 p-10 relative overflow-hidden group">
+        {/* Hero Slider */}
+        <section className="flex-1 relative overflow-hidden group rounded-lg shadow-lg bg-white p-6 md:p-10">
           {/* Left Arrow */}
-          <SlArrowLeft
+          <button
             onClick={handlePrev}
-            size={25}
-            className="absolute left-5 bg-white shadow p-2 rounded-full 
-                       opacity-0 group-hover:opacity-70 hover:opacity-100
-                       transition duration-300 cursor-pointer"
-          />
+            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-yellow-500 shadow-lg p-3 rounded-full opacity-0 group-hover:opacity-80 hover:opacity-100 transition duration-300 z-10"
+          >
+            <SlArrowLeft size={28} />
+          </button>
 
-          {/* Slide */}
+          {/* Slide Content */}
           <div
             key={currentIndex}
-            className={`flex items-center gap-6 transform transition-all duration-700 ease-out ${
-              slideIn ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"
+            className={`flex flex-col md:flex-row items-center gap-6 md:gap-10 transform transition-all duration-700 ease-out ${
+              slideIn
+                ? "translate-x-0 opacity-100"
+                : "translate-x-10 opacity-0"
             }`}
           >
             {/* Text */}
-            <div className="space-y-4 max-w-md">
-              <h4 className="text-yellow-500 font-semibold">
+            <div className="space-y-4 md:max-w-md text-center md:text-left">
+              <h4 className="text-yellow-500 font-semibold tracking-wide">
                 {heroBlocks[currentIndex].subtitle}
               </h4>
-              <h1 className="text-4xl font-extrabold leading-tight">
+              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-gray-900">
                 {heroBlocks[currentIndex].title}
               </h1>
               <p className="text-lg text-gray-600">
                 {heroBlocks[currentIndex].discount}
               </p>
-              <span
-                className="bg-yellow-500 text-black px-6 py-3 font-bold rounded shadow hover:bg-yellow-600 transition cursor-pointer inline-block"
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="bg-yellow-500 text-black px-6 py-3 font-bold rounded shadow hover:bg-yellow-600 transition transform hover:scale-105"
               >
                 BUY NOW
-              </span>
+              </button>
             </div>
 
             {/* Image */}
             <img
               src={heroBlocks[currentIndex].img}
               alt={heroBlocks[currentIndex].title}
-              className="w-80"
+              className={`w-full md:w-[400px] h-[400px] object-contain rounded-lg shadow-xl transition-transform duration-700 ease-out ${
+                imgEffect
+                  ? "translate-x-0 opacity-100 scale-100"
+                  : "translate-x-5 opacity-0 scale-90"
+              }`}
             />
           </div>
 
           {/* Right Arrow */}
-          <SlArrowRight
+          <button
             onClick={handleNext}
-            size={25}
-            className="absolute right-5 bg-white shadow p-2 rounded-full 
-                       opacity-0 group-hover:opacity-70 hover:opacity-100
-                       transition duration-300 cursor-pointer"
-          />
+            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-yellow-500 shadow-lg p-3 rounded-full opacity-0 group-hover:opacity-80 hover:opacity-100 transition duration-300 z-10"
+          >
+            <SlArrowRight size={28} />
+          </button>
         </section>
       </div>
 
-      {/* Other Sections */}
-      <PromoSection />
-      <HotDealsSection />
+      {/* ----- Home Sections Below Hero ----- */}
+      <Section2 />
+      <Services />
       <BestSellingProducts />
       <ProductShowcase />
     </div>

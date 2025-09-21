@@ -1,9 +1,11 @@
 import React from "react";
-import { Heart, ShoppingCart, Eye, Layers } from "lucide-react"; // icons for actions
+import { Link } from "react-router-dom"; // <-- Import Link
+import { Heart, ShoppingCart, Eye, Layers } from "lucide-react";
 
 const BestSellingProducts: React.FC = () => {
   const products = [
     {
+      id: 1,
       name: "Apple Watch Series 5",
       price: "$499.00 – $599.00",
       discount: "17% OFF",
@@ -11,6 +13,7 @@ const BestSellingProducts: React.FC = () => {
       img: "https://i.pinimg.com/1200x/a1/3d/a6/a13da6ea12e0308d2e11620d242a2d36.jpg",
     },
     {
+      id: 2,
       name: "Microsoft Xbox One Wireless",
       price: "$25.00",
       oldPrice: "$45.00",
@@ -18,24 +21,28 @@ const BestSellingProducts: React.FC = () => {
       img: "https://i.pinimg.com/1200x/0e/c5/c8/0ec5c85862768b6176908ad9dcb1b0e2.jpg",
     },
     {
+      id: 3,
       name: "JBL On-Ear Headphones",
       price: "$124.00",
       discount: "FEATURED",
       img: "https://i.pinimg.com/736x/8e/f7/3f/8ef73f93acc68bf1f8661b9dedb09c33.jpg",
     },
     {
+      id: 4,
       name: "Samsung Virtual Reality Headset",
       price: "$18.00",
       discount: "",
       img: "https://i.pinimg.com/736x/4c/1e/5e/4c1e5eba65d86da95ee5375fc5561546.jpg",
     },
     {
+      id: 5,
       name: "Apple Watch Series 5 Black Milanese",
       price: "$599.00",
       discount: "",
       img: "https://i.pinimg.com/736x/ee/7c/12/ee7c12ba5266b77fb83806c8f5bc0da2.jpg",
     },
     {
+      id: 6,
       name: "Samsung Gear 360 Camera",
       price: "$29.00",
       oldPrice: "$48.00",
@@ -52,18 +59,21 @@ const BestSellingProducts: React.FC = () => {
           BEST SELLING PRODUCTS
           <span className="absolute bottom-0 left-0 w-20 h-0.5 bg-yellow-500"></span>
         </h2>
-        <div className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded shadow cursor-pointer">
+        <Link
+          to="/products"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded shadow"
+        >
           VIEW ALL
-        </div>
+        </Link>
       </div>
 
       {/* Products grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((item, index) => (
-          <div
-            key={index}
-            className="border bg-white p-4 rounded-lg shadow-md relative 
-                       transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        {products.map((item) => (
+          <Link
+            to={`/product/${item.id}`} // <-- Link to product detail page
+            key={item.id}
+            className="border bg-white p-4 rounded-lg shadow-md relative transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
           >
             {/* Discount / Featured Badge */}
             {item.discount && (
@@ -94,18 +104,12 @@ const BestSellingProducts: React.FC = () => {
 
             {/* Info */}
             <p className="text-xs text-gray-500 uppercase">ELECTRONICS</p>
-            <h3 className="text-sm font-semibold text-gray-800 mb-1">
-              {item.name}
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-1">{item.name}</h3>
 
             {/* Prices */}
             <div className="flex items-center space-x-2">
               <span className="text-gray-900 font-bold">{item.price}</span>
-              {item.oldPrice && (
-                <span className="text-gray-400 line-through text-sm">
-                  {item.oldPrice}
-                </span>
-              )}
+              {item.oldPrice && <span className="text-gray-400 line-through text-sm">{item.oldPrice}</span>}
             </div>
 
             {/* Action buttons */}
@@ -120,7 +124,7 @@ const BestSellingProducts: React.FC = () => {
                 <Layers size={16} />
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
