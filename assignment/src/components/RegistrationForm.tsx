@@ -1,83 +1,122 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Signup: React.FC = () => {
+interface AuthResponse {
+  message: string;
+  token: string;
+  role: string;
+}
+
+const SignupPage: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (emailInput: string, passwordInput: string) => {
+    const normalizedEmail = emailInput.toLowerCase();
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail, password: passwordInput }),
+    });
+    const data: AuthResponse = await res.json();
 
-    // Simple localStorage storage
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-    const exists = users.find((user: any) => user.email === email);
-    if (exists) {
-      alert("Account already exists! Try logging in.");
-      navigate("/login");
-      return;
+    if (!res.ok) {
+      alert(data.message);
+      return false;
     }
 
-    users.push({ name, email, password });
-    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
 
-    alert("Account created successfully!");
-    navigate("/dashboard");
+    if (data.role === "admin") navigate("/dashboard");
+    else navigate("/");
+
+    return true;
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const normalizedEmail = email.toLowerCase();
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email: normalizedEmail, password, role: "user" }),
+      });
+
+      const data: AuthResponse = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      // ✅ Auto login after signup
+      await handleLogin(normalizedEmail, password);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold text-center text-yellow-600 mb-6">
-          Sign Up
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          required
-        />
+        <form onSubmit={handleSignup} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border px-4 py-2 rounded"
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border px-4 py-2 rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border px-4 py-2 rounded"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-yellow-500 text-black py-2 rounded font-bold hover:bg-yellow-600 transition"
+            disabled={loading}
+          >
+            {loading ? "Please wait..." : "Sign Up"}
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          className="w-full bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600 transition duration-300"
-        >
-          Create Account
-        </button>
-
-        <p className="text-sm text-center text-gray-600 mt-4">
+        <p className="mt-4 text-center text-gray-600">
           Already have an account?{" "}
-          <a href="/login" className="text-yellow-600 hover:underline">
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="text-yellow-500 font-semibold"
+          >
             Login
-          </a>
+          </button>
         </p>
-      </form>
+      </div>
     </div>
   );
 };
 
-export default Signup;
+export default SignupPage;

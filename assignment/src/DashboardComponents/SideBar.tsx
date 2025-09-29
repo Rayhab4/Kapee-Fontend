@@ -1,32 +1,30 @@
+import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, ShoppingCart, Box, Users, BarChart2, Percent, Link, HelpCircle, Settings } from "lucide-react";
+import { Home, Box, Users, BarChart2, Percent, Settings, ShoppingCart, CreditCard } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard", icon: <Home />, path: "/Dashboard" },
-  { label: "Products", icon: <Box />, path: "/Dashboard/products" },
-  { label: "Customers", icon: <Users />, path: "/Dashboard/customers" },
-  { label: "Reports", icon: <BarChart2 />, path: "/Dashboard/reports" },
-  { label: "Discounts", icon: <Percent />, path: "/Dashboard/discounts" },
-  { label: "Integrations", icon: <Link />, path: "/Dashboard/integration" },
-  { label: "Help", icon: <HelpCircle />, path: "/Dashboard/help" },
-  { label: "Settings", icon: <Settings />, path: "/Dashboard/settings" },
+  { label: "Dashboard", icon: <Home />, path: "/dashboard" },
+  { label: "Products", icon: <Box />, path: "/dashboard/products" },
+  { label: "Users", icon: <Users />, path: "/dashboard/users" },
+  { label: "Reports", icon: <BarChart2 />, path: "/dashboard/reports" },
+  { label: "Cart", icon: <ShoppingCart />, path: "/dashboard/cart" }, // Admin Cart
+  { label: "Orders", icon: <CreditCard />, path: "/dashboard/orders" }, // Admin Orders
+  { label: "Discounts", icon: <Percent />, path: "/dashboard/discounts" },
+  { label: "Settings", icon: <Settings />, path: "/dashboard/settings" },
 ];
 
-export default function Sidebar() {
+const DashboardSidebar: React.FC = () => {
   return (
-    <aside className="w-60 bg-yellow-500 shadow-md h-screen p-4">
-      <div className="text-xl font-bold text-white mb-6">Kapee</div>
-      <nav className="space-y-2">
-        {menuItems.map((item, idx) => (
+    <aside className="w-64 bg-white border-r border-gray-200 h-screen p-6 flex flex-col">
+      <h2 className="text-2xl font-bold mb-8">Admin Panel</h2>
+      <nav className="flex flex-col gap-2">
+        {menuItems.map((item) => (
           <NavLink
-            key={idx}
+            key={item.label}
             to={item.path}
-            end
             className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                isActive
-                  ? "bg-yellow-200 text-yellow-800 font-semibold"
-                  : "text-white hover:bg-yellow-400"
+              `flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition ${
+                isActive ? "bg-gray-200 font-bold" : ""
               }`
             }
           >
@@ -37,4 +35,6 @@ export default function Sidebar() {
       </nav>
     </aside>
   );
-}
+};
+
+export default DashboardSidebar;

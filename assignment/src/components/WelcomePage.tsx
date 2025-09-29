@@ -1,169 +1,152 @@
 import React, { useEffect, useState } from "react";
-import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
-import ProductShowcase from "./ProductShowCase";
-import Section2 from "./Section2";
-import Services from "./Services";
-import BestSellingProducts from "./BestSellProduct";
+import { useNavigate } from "react-router-dom";
 
-// -------------------- Types --------------------
-interface HeroBlock {
-  title: string;
-  subtitle: string;
-  discount: string;
-  img: string;
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  description: string;
+  quantity: number;
 }
 
-// -------------------- Data --------------------
-const categories: string[] = [
-  "Men’s Clothing",
-  "Women’s Clothing",
-  "Accessories",
-  "Shoes",
-  "Jewellery",
-  "Bags & Backpacks",
-  "Watches",
-  "Dresses",
-  "Shirts",
-  "T-Shirts",
-  "Jackets",
-  "Sweaters",
-  "Pants",
-  "Shorts",
-  "Suits",
-];
+interface ProductCardProps {
+  product: Product;
+  onAddToCart: (product: Product) => void;
+  onViewDetails?: (product: Product) => void;
+}
 
-const heroBlocks: HeroBlock[] = [
-  {
-    title: "WIRELESS CHARGING STAND",
-    subtitle: "BEST SMARTPHONE",
-    discount: "Up To 70% Off",
-    img: "/image1.jpg",
-  },
-  {
-    title: "PERSONALIZED HEADPHONES",
-    subtitle: "BEATS EP ON-EAR",
-    discount: "Min. 40-80% Off",
-    img: "/image2.jpg",
-  },
-];
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onAddToCart,
+  onViewDetails,
+}) => (
+  <div className="border rounded-lg shadow-md p-4 flex flex-col items-center bg-white">
+    <img
+      src={product.imageUrl}
+      alt={product.name}
+      className="w-48 h-48 object-contain rounded-lg mb-4"
+    />
+    <h2 className="font-bold text-lg mb-2">{product.name}</h2>
+    <p className="text-gray-700 mb-2">${product.price}</p>
+    <div className="flex gap-2">
+      <button
+        onClick={() => onAddToCart(product)}
+        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition"
+      >
+        Add to Cart
+      </button>
 
-// -------------------- Component --------------------
+      {onViewDetails && (
+        <button
+          onClick={() => onViewDetails(product)}
+          className="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600 transition"
+        >
+          View Details
+        </button>
+      )}
+    </div>
+  </div>
+);
+
 const WelcomePage: React.FC = () => {
-  const [slideIn, setSlideIn] = useState<boolean>(false);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [imgEffect, setImgEffect] = useState<boolean>(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setSlideIn(true);
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5000/api/products", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((res) => res.json())
+      .then((data) => setProducts(data.data || []))
+      .catch((err) => console.error("Failed to fetch products:", err));
   }, []);
 
-  useEffect(() => {
-    setImgEffect(false);
-    const timeout = setTimeout(() => setImgEffect(true), 50);
-    return () => clearTimeout(timeout);
-  }, [currentIndex]);
+  const handleAddToCart = (product: Product) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first to add items to cart.");
+      navigate("/login");
+      return;
+    }
 
-  const handleNext = (): void =>
-    setCurrentIndex((prev) => (prev + 1) % heroBlocks.length);
-
-  const handlePrev = (): void =>
-    setCurrentIndex((prev) => (prev === 0 ? heroBlocks.length - 1 : prev - 1));
-
-  // ⬇️ Placeholder Buy Now handler
-  const handleBuyNow = (): void => {
-    // Intentionally does nothing for now
-    console.log("BUY NOW clicked:", heroBlocks[currentIndex].title);
+    fetch("http://localhost:5000/api/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productId: product._id, quantity: 1 }),
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          alert("Session expired, please login again.");
+          navigate("/login");
+          throw new Error("Unauthorized");
+        }
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "Failed to add to cart");
+        }
+        return res.json();
+      })
+      .then((data) => alert(data.message || "Added to cart"))
+      .catch((err) => console.error("Add to cart failed:", err));
   };
 
   return (
-    <div className="bg-gray-50">
-      {/* ----- Hero Section ----- */}
-      <div className="flex flex-col md:flex-row max-w-7xl mx-auto py-12 px-6 gap-6">
-        {/* Sidebar with Categories */}
-        <aside className="w-full md:w-1/4 bg-white border border-gray-200 rounded-lg p-6 overflow-auto">
-          <h3 className="font-bold text-xl mb-4">Categories</h3>
-          <table className="table-auto w-full border-collapse">
-            <tbody>
-              {categories.map((category, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-yellow-50 cursor-pointer transition-colors duration-300"
-                >
-                  <td className="border-b border-gray-200 py-2 px-4 text-gray-700 font-medium">
-                    {category}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </aside>
-
-        {/* Hero Slider */}
-        <section className="flex-1 relative overflow-hidden group rounded-lg shadow-lg bg-white p-6 md:p-10">
-          {/* Left Arrow */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-yellow-500 shadow-lg p-3 rounded-full opacity-0 group-hover:opacity-80 hover:opacity-100 transition duration-300 z-10"
-          >
-            <SlArrowLeft size={28} />
-          </button>
-
-          {/* Slide Content */}
-          <div
-            key={currentIndex}
-            className={`flex flex-col md:flex-row items-center gap-6 md:gap-10 transform transition-all duration-700 ease-out ${
-              slideIn
-                ? "translate-x-0 opacity-100"
-                : "translate-x-10 opacity-0"
-            }`}
-          >
-            {/* Text */}
-            <div className="space-y-4 md:max-w-md text-center md:text-left">
-              <h4 className="text-yellow-500 font-semibold tracking-wide">
-                {heroBlocks[currentIndex].subtitle}
-              </h4>
-              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-gray-900">
-                {heroBlocks[currentIndex].title}
-              </h1>
-              <p className="text-lg text-gray-600">
-                {heroBlocks[currentIndex].discount}
-              </p>
-              <button
-                type="button"
-                onClick={handleBuyNow}
-                className="bg-yellow-500 text-black px-6 py-3 font-bold rounded shadow hover:bg-yellow-600 transition transform hover:scale-105"
-              >
-                BUY NOW
-              </button>
-            </div>
-
-            {/* Image */}
-            <img
-              src={heroBlocks[currentIndex].img}
-              alt={heroBlocks[currentIndex].title}
-              className={`w-full md:w-[400px] h-[400px] object-contain rounded-lg shadow-xl transition-transform duration-700 ease-out ${
-                imgEffect
-                  ? "translate-x-0 opacity-100 scale-100"
-                  : "translate-x-5 opacity-0 scale-90"
-              }`}
+    <div className="bg-gray-50 min-h-screen">
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <h2 className="text-2xl font-bold mb-6">Featured Products</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              onAddToCart={handleAddToCart}
+              onViewDetails={setSelectedProduct}
             />
+          ))}
+        </div>
+      </section>
+
+      {/* Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-96 relative">
+            <button
+              onClick={() => setSelectedProduct(null)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 font-bold text-lg"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4">{selectedProduct.name}</h2>
+            <img
+              src={selectedProduct.imageUrl}
+              alt={selectedProduct.name}
+              className="w-56 h-56 object-contain mx-auto mb-4"
+            />
+            <div className="space-y-2">
+              <p>
+                <strong>Description:</strong> {selectedProduct.description}
+              </p>
+              <p>
+                <strong>Category:</strong> {selectedProduct.category}
+              </p>
+              <p>
+                <strong>Price:</strong> ${selectedProduct.price}
+              </p>
+              <p>
+                <strong>Available Quantity:</strong> {selectedProduct.quantity}
+              </p>
+            </div>
           </div>
-
-          {/* Right Arrow */}
-          <button
-            onClick={handleNext}
-            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-yellow-500 shadow-lg p-3 rounded-full opacity-0 group-hover:opacity-80 hover:opacity-100 transition duration-300 z-10"
-          >
-            <SlArrowRight size={28} />
-          </button>
-        </section>
-      </div>
-
-      {/* ----- Home Sections Below Hero ----- */}
-      <Section2 />
-      <Services />
-      <BestSellingProducts />
-      <ProductShowcase />
+        </div>
+      )}
     </div>
   );
 };

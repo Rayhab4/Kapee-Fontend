@@ -1,33 +1,85 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const Orders = () => {
-  const orders = [
-    { id: 101, customer: "John Doe", total: "$120.00", date: "2025-09-19", status: "Shipped" },
-    { id: 102, customer: "Jane Smith", total: "$80.00", date: "2025-09-18", status: "Pending" },
-    { id: 103, customer: "Bob Johnson", total: "$200.00", date: "2025-09-17", status: "Delivered" },
-  ];
+interface OrderItem {
+  productId: {
+    name: string;
+    price: number;
+  };
+  quantity: number;
+  priceAtPurchase: number;
+}
+
+interface Order {
+  _id: string;
+  userId: {
+    name: string;
+    email: string;
+  };
+  items: OrderItem[];
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+}
+
+const OrdersTable: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/order", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOrders(response.data.data);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) return <p>Loading orders...</p>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Orders</h2>
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Order ID</th>
-            <th className="border p-2">Customer</th>
-            <th className="border p-2">Total</th>
-            <th className="border p-2">Date</th>
-            <th className="border p-2">Status</th>
+    <div className="overflow-x-auto mt-6">
+      <table className="min-w-full border border-gray-200 rounded-lg">
+        <thead className="bg-green-500 text-white">
+          <tr>
+            <th className="px-4 py-2 text-left">Order ID</th>
+            <th className="px-4 py-2 text-left">Customer</th>
+            <th className="px-4 py-2 text-left">Items</th>
+            <th className="px-4 py-2 text-left">Total</th>
+            <th className="px-4 py-2 text-left">Status</th>
+            <th className="px-4 py-2 text-left">Date</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((o) => (
-            <tr key={o.id}>
-              <td className="border p-2">{o.id}</td>
-              <td className="border p-2">{o.customer}</td>
-              <td className="border p-2">{o.total}</td>
-              <td className="border p-2">{o.date}</td>
-              <td className="border p-2">{o.status}</td>
+          {orders.map((order) => (
+            <tr key={order._id} className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="px-4 py-2">{order._id}</td>
+              <td className="px-4 py-2">{order.userId.name} ({order.userId.email})</td>
+              <td className="px-4 py-2">
+                {order.items.map((item, index) => (
+                  <div key={index}>
+                    {item.productId.name} x {item.quantity} (${item.priceAtPurchase})
+                  </div>
+                ))}
+              </td>
+              <td className="px-4 py-2 font-bold">${order.totalPrice}</td>
+              <td className={`px-4 py-2 font-semibold ${
+                order.status === "completed" ? "text-green-600" :
+                order.status === "pending" ? "text-yellow-600" :
+                "text-red-600"
+              }`}>
+                {order.status}
+              </td>
+              <td className="px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
             </tr>
           ))}
         </tbody>
@@ -36,4 +88,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default OrdersTable;

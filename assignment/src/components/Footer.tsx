@@ -18,7 +18,7 @@ import paypal from "../assets/paypal.jpg";
 import discover from "../assets/discover.jpg";
 import maestro from "../assets/maestro.jpg";
 import mastercard from "../assets/mastercard.jpg";
-
+                          
 const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-100 text-gray-700 border-t">

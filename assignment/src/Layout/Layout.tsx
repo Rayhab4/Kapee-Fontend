@@ -1,11 +1,15 @@
-import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
-const Layout = () => {
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";  
+import Footer from "../components/Footer"; 
+
+
+
+const Layout: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar on top */}
+      {/* Navbar at the top */}
       <Navbar />
 
       {/* Page content */}
@@ -13,7 +17,7 @@ const Layout = () => {
         <Outlet />
       </main>
 
-      {/* Footer at bottom */}
+      {/* Footer at the bottom */}
       <Footer />
     </div>
   );

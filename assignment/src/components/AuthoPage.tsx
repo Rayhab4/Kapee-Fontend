@@ -1,6 +1,6 @@
 import { useState } from "react";
-import RegistrationForm from "./RegistrationForm"; // path relative to AuthPage.tsx
-import LoginForm from "./loginPage";               // path relative to AuthPage.tsx
+import LoginForm from "./loginPage";
+import RegistrationForm from "./RegistrationForm";
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
