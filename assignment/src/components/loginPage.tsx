@@ -34,7 +34,7 @@ const LoginPage: React.FC = () => {
       const data = await res.json().catch(() => ({ message: "Unknown error" }));
 
       if (!res.ok) {
-        // If user does not exist, redirect to Sign Up
+        // If login fails
         if (data.message === "Invalid email or password") {
           alert("No account found with this email. Please Register...");
           navigate("/signup", { state: { email: normalizedEmail } }); // Pass email to Sign Up
@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
 
       const authData: AuthResponse = data;
 
-      // Save token, role, and user info
+      // ✅ Save token, role, and user info to localStorage
       localStorage.setItem("token", authData.token);
       localStorage.setItem("role", authData.role);
       localStorage.setItem("user", JSON.stringify(authData.user));

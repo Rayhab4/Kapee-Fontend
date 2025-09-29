@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -8,51 +9,41 @@ interface User {
 }
 
 const Users: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // Function to fetch all users
-  const fetchUsers = async () => {
+  useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      setError("Please login first.");
-      setLoading(false);
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
+      // No token or user info, redirect to login
+      navigate("/login");
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      const usersArray: User[] = data.users || (data.user ? [{ ...data.user, status: "Active" }] : []);
-      setUsers(usersArray);
+      const parsedUser: User = JSON.parse(storedUser);
+      // Add a status field for display purposes
+      parsedUser.status = "Active";
+      setUser(parsedUser);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
+      console.error("Failed to parse user from localStorage:", err);
+      setError("Failed to load user info.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  // Call fetchUsers manually after signup/login to refresh dashboard
-  // Example: after login function completes, just call fetchUsers()
-
-  if (loading) return <p className="text-center mt-10">Loading users...</p>;
+  if (loading) return <p className="text-center mt-10">Loading user...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
-  if (users.length === 0) return <p className="text-center mt-10">No users found.</p>;
+  if (!user) return <p className="text-center mt-10">No user found.</p>;
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">My Customers</h2>
+      <h2 className="text-2xl font-bold mb-4">My Account</h2>
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
@@ -63,14 +54,12 @@ const Users: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user._id} className={user.status === "Active" ? "bg-green-50" : ""}>
-              <td className="border p-2">{user._id}</td>
-              <td className="border p-2">{user.name}</td>
-              <td className="border p-2">{user.email}</td>
-              <td className="border p-2">{user.status || "Inactive"}</td>
-            </tr>
-          ))}
+          <tr className={user.status === "Active" ? "bg-green-50" : ""}>
+            <td className="border p-2">{user._id}</td>
+            <td className="border p-2">{user.name}</td>
+            <td className="border p-2">{user.email}</td>
+            <td className="border p-2">{user.status}</td>
+          </tr>
         </tbody>
       </table>
     </div>

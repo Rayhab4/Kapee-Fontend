@@ -35,13 +35,12 @@ const CartPage: React.FC = () => {
       const res = await fetch("http://localhost:5000/api/cart", {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Make sure token is sent correctly
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!res.ok) {
         if (res.status === 401) {
-          // Token missing/expired
           localStorage.removeItem("token");
           alert("Session expired, please login again.");
           navigate("/login");
@@ -66,12 +65,11 @@ const CartPage: React.FC = () => {
     fetchCartItems();
   }, []);
 
-  // Handle order
-  const handleOrder = async (item: CartItem) => {
+  // Checkout all items in cart
+  const handleCheckout = async () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
-      alert("Please login first to make an order.");
+      alert("Please login first to place an order.");
       navigate("/login");
       return;
     }
@@ -83,20 +81,20 @@ const CartPage: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ productId: item.product._id, quantity: item.quantity }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to place order");
+        throw new Error(data.message || "Failed to place order");
       }
 
-      const data = await res.json();
       alert(data.message || "Order placed successfully!");
-      fetchCartItems(); // Refresh cart after order
+      fetchCartItems(); // refresh cart (should now be empty)
+      navigate("/orders"); // go to orders page
     } catch (err: any) {
-      console.error("Order failed:", err);
-      alert(err.message || "Order failed");
+      console.error("Checkout failed:", err);
+      alert(err.message || "Failed to place order");
     }
   };
 
@@ -120,14 +118,18 @@ const CartPage: React.FC = () => {
             <h2 className="font-bold text-lg mb-2">{item.product.name}</h2>
             <p className="text-gray-700 mb-2">Price: ${item.product.price}</p>
             <p className="text-gray-700 mb-4">Quantity: {item.quantity}</p>
-            <button
-              onClick={() => handleOrder(item)}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-            >
-              Order Now
-            </button>
           </div>
         ))}
+      </div>
+
+      {/* Checkout All Items Button */}
+      <div className="mt-6 text-center">
+        <button
+          onClick={handleCheckout}
+          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
+        >
+          Checkout All Items
+        </button>
       </div>
     </div>
   );

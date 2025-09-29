@@ -13,7 +13,7 @@ interface Product {
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, quantity: number) => void;
   onViewDetails?: (product: Product) => void;
 }
 
@@ -21,34 +21,60 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
   onViewDetails,
-}) => (
-  <div className="border rounded-lg shadow-md p-4 flex flex-col items-center bg-white">
-    <img
-      src={product.imageUrl}
-      alt={product.name}
-      className="w-48 h-48 object-contain rounded-lg mb-4"
-    />
-    <h2 className="font-bold text-lg mb-2">{product.name}</h2>
-    <p className="text-gray-700 mb-2">${product.price}</p>
-    <div className="flex gap-2">
-      <button
-        onClick={() => onAddToCart(product)}
-        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition"
-      >
-        Add to Cart
-      </button>
+}) => {
+  const [quantity, setQuantity] = useState<number>(1);
 
-      {onViewDetails && (
+  const increaseQty = () => setQuantity((prev) => prev + 1);
+  const decreaseQty = () =>
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+  return (
+    <div className="border rounded-lg shadow-md p-4 flex flex-col items-center bg-white">
+      <img
+        src={product.imageUrl}
+        alt={product.name}
+        className="w-48 h-48 object-contain rounded-lg mb-4"
+      />
+      <h2 className="font-bold text-lg mb-2">{product.name}</h2>
+      <p className="text-gray-700 mb-2">${product.price}</p>
+
+      {/* Quantity Selector */}
+      <div className="flex items-center gap-2 mb-3">
         <button
-          onClick={() => onViewDetails(product)}
-          className="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600 transition"
+          onClick={decreaseQty}
+          className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
         >
-          View Details
+          −
         </button>
-      )}
+        <span className="px-3 font-semibold">{quantity}</span>
+        <button
+          onClick={increaseQty}
+          className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          +
+        </button>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => onAddToCart(product, quantity)}
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition"
+        >
+          Add to Cart
+        </button>
+
+        {onViewDetails && (
+          <button
+            onClick={() => onViewDetails(product)}
+            className="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600 transition"
+          >
+            View Details
+          </button>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const WelcomePage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -65,7 +91,7 @@ const WelcomePage: React.FC = () => {
       .catch((err) => console.error("Failed to fetch products:", err));
   }, []);
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = async (product: Product, quantity: number) => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login first to add items to cart.");
@@ -73,29 +99,29 @@ const WelcomePage: React.FC = () => {
       return;
     }
 
-    fetch("http://localhost:5000/api/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ productId: product._id, quantity: 1 }),
-    })
-      .then(async (res) => {
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          alert("Session expired, please login again.");
-          navigate("/login");
-          throw new Error("Unauthorized");
-        }
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || "Failed to add to cart");
-        }
-        return res.json();
-      })
-      .then((data) => alert(data.message || "Added to cart"))
-      .catch((err) => console.error("Add to cart failed:", err));
+    try {
+      const res = await fetch("http://localhost:5000/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          items: { productId: product._id, quantity },
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to add to cart");
+      }
+
+      alert(data.message || "Added to cart!");
+    } catch (err: any) {
+      console.error("Add to cart failed:", err);
+      alert(err.message || "Failed to add to cart");
+    }
   };
 
   return (
@@ -139,9 +165,6 @@ const WelcomePage: React.FC = () => {
               </p>
               <p>
                 <strong>Price:</strong> ${selectedProduct.price}
-              </p>
-              <p>
-                <strong>Available Quantity:</strong> {selectedProduct.quantity}
               </p>
             </div>
           </div>
